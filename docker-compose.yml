@@ -1,0 +1,28 @@
+services:
+  db:
+    image: mysql:8.0.35-debian
+    container_name: films-backend-db
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=films
+    volumes:
+      - ./config/prod/mysql_dump:/docker-entrypoint-initdb.d
+      - mysql-data:/var/lib/mysql #Opcional
+  app:
+    build: . 
+    container_name: films-backend-api
+    volumes:
+      - ./app:/var/www/html/app
+      - ./config/prod/virtualhosts/filmsccs.api.chickenkiller.com.conf:/etc/apache2/sites-enabled/filmsccs.api.chickenkiller.com.conf
+    ports:
+      - "8081:80"
+    restart: always
+    depends_on:
+      - db
+volumes:
+  mysql-data:

@@ -1,0 +1,28 @@
+services:
+  db:
+    image: mysql:8.0.35-debian
+    container_name: films-backend-db
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_USER=dbuser
+      - MYSQL_PASSWORD=dbuser
+      - MYSQL_DATABASE=films
+    volumes:
+      - ./config/dev/mysql_dump:/docker-entrypoint-initdb.d
+      - mysql-data:/var/lib/mysql
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: films-backend-api
+    volumes:
+      - ./app:/var/www/html/app
+      - ./config/dev/virtualhosts/apache-dev.com.conf:/etc/apache2/sites-enabled/apache-dev.com.conf
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+volumes:
+  mysql-data:
